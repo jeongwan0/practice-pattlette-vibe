@@ -1,0 +1,745 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <title>컬러 팔레트 예제</title>
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        background-color: #e0e0e0;
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        min-height: 100vh;
+        padding: 40px 20px;
+        font-family: "Segoe UI", sans-serif;
+      }
+
+      .container {
+        background-color: #ffffff;
+        border-radius: 16px;
+        padding: 32px;
+        width: 820px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+      }
+
+      .layout-row {
+        display: flex;
+        gap: 28px;
+        align-items: flex-start;
+      }
+
+      .col-left {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        min-width: 0;
+      }
+
+      .col-right {
+        width: 220px;
+        flex-shrink: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+      }
+
+      .col-divider {
+        width: 1px;
+        background-color: #f0f0f0;
+        align-self: stretch;
+        flex-shrink: 0;
+      }
+
+      /* 타이틀 */
+      .main-title {
+        font-size: 20px;
+        font-weight: 700;
+        color: #222;
+        letter-spacing: -0.01em;
+      }
+
+      .section-title {
+        font-size: 12px;
+        font-weight: 600;
+        color: #888;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        margin-bottom: 8px;
+      }
+
+      /* 팔레트 */
+      .palette-canvas {
+        display: block;
+        cursor: crosshair;
+        border-radius: 8px;
+        width: 100%;
+      }
+
+      .hue-canvas {
+        display: block;
+        cursor: crosshair;
+        border-radius: 4px;
+        width: 100%;
+        margin-top: 10px;
+      }
+
+      /* 명도/채도 슬라이더 */
+      .slider-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-top: 10px;
+      }
+
+      .slider-label {
+        font-size: 11px;
+        font-weight: 700;
+        color: #aaa;
+        width: 28px;
+        flex-shrink: 0;
+      }
+
+      .slider-input {
+        flex: 1;
+        height: 6px;
+        border-radius: 4px;
+        outline: none;
+        cursor: pointer;
+        appearance: none;
+        -webkit-appearance: none;
+        border: none;
+      }
+
+      .slider-input::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        background: white;
+        border: 2px solid #aaa;
+        cursor: pointer;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+      }
+
+      .slider-value {
+        font-size: 12px;
+        font-family: monospace;
+        color: #555;
+        width: 32px;
+        text-align: right;
+        flex-shrink: 0;
+      }
+
+      /* 선택 색상 미리보기 */
+      .preview-row {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+      }
+
+      .color-preview {
+        width: 64px;
+        height: 64px;
+        border-radius: 50%;
+        border: 3px solid #e0e0e0;
+        flex-shrink: 0;
+        background-color: #ffffff;
+      }
+
+      .color-values {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        flex: 1;
+      }
+
+      .value-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .value-label {
+        font-size: 11px;
+        font-weight: 700;
+        color: #aaa;
+        width: 32px;
+      }
+
+      .value-text {
+        font-size: 13px;
+        font-family: monospace;
+        color: #333;
+        flex: 1;
+        background: #f5f5f5;
+        padding: 4px 8px;
+        border-radius: 4px;
+      }
+
+      .btn-copy {
+        font-size: 11px;
+        padding: 4px 10px;
+        background-color: #4f8ef7;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+
+      .btn-copy:hover {
+        background-color: #2f6edb;
+      }
+
+      .btn-copy.copied {
+        background-color: #4caf50;
+      }
+
+      /* 24색 스와치 */
+      .swatch-grid {
+        display: grid;
+        grid-template-columns: repeat(8, 1fr);
+        gap: 6px;
+      }
+
+      .swatch-item {
+        width: 100%;
+        aspect-ratio: 1;
+        border-radius: 4px;
+        cursor: pointer;
+        border: 2px solid transparent;
+        transition:
+          transform 0.1s,
+          border-color 0.1s;
+      }
+
+      .swatch-item:hover {
+        transform: scale(1.15);
+        border-color: #555;
+      }
+
+      /* 추천 색 조합 */
+      .palette-combo {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .combo-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        cursor: pointer;
+        padding: 6px 8px;
+        border-radius: 8px;
+        transition: background 0.1s;
+      }
+
+      .combo-item:hover {
+        background-color: #f5f5f5;
+      }
+
+      .combo-swatches {
+        display: flex;
+        gap: 4px;
+      }
+
+      .combo-swatch {
+        width: 28px;
+        height: 28px;
+        border-radius: 4px;
+        border: 1px solid rgba(0, 0, 0, 0.08);
+        cursor: pointer;
+        transition: transform 0.1s;
+      }
+
+      .combo-swatch:hover {
+        transform: scale(1.15);
+      }
+
+      .combo-name {
+        font-size: 12px;
+        color: #666;
+      }
+
+      /* 저장된 색상 */
+      .saved-grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        min-height: 40px;
+      }
+
+      .saved-item {
+        width: 32px;
+        height: 32px;
+        border-radius: 4px;
+        cursor: pointer;
+        border: 2px solid transparent;
+        transition: transform 0.1s;
+      }
+
+      .saved-item:hover {
+        transform: scale(1.15);
+        border-color: #555;
+      }
+
+      .saved-empty {
+        font-size: 12px;
+        color: #bbb;
+        align-self: center;
+      }
+
+      .save-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .btn-save {
+        font-size: 12px;
+        padding: 6px 14px;
+        background-color: #4f8ef7;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+      }
+
+      .btn-save:hover {
+        background-color: #2f6edb;
+      }
+
+      .btn-clear {
+        font-size: 12px;
+        padding: 6px 14px;
+        background-color: #f0f0f0;
+        color: #666;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+      }
+
+      .btn-clear:hover {
+        background-color: #ddd;
+      }
+
+      .divider {
+        border: none;
+        border-top: 1px solid #f0f0f0;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <!-- 타이틀 -->
+      <div class="main-title">색상 팔레트</div>
+
+      <div class="layout-row">
+        <!-- 왼쪽 컬럼 -->
+        <div class="col-left">
+          <!-- 팔레트 -->
+          <div>
+            <div class="section-title">색상 선택</div>
+            <canvas
+              class="palette-canvas"
+              id="paletteCanvas"
+              width="500"
+              height="220"
+            ></canvas>
+            <canvas
+              class="hue-canvas"
+              id="hueCanvas"
+              width="500"
+              height="16"
+            ></canvas>
+
+            <!-- 채도 슬라이더 -->
+            <div class="slider-row">
+              <span class="slider-label">채도</span>
+              <input
+                class="slider-input"
+                id="satSlider"
+                type="range"
+                min="0"
+                max="100"
+                value="100"
+                oninput="onSliderChange()"
+              />
+              <span class="slider-value" id="satValue">100%</span>
+            </div>
+
+            <!-- 명도 슬라이더 -->
+            <div class="slider-row">
+              <span class="slider-label">명도</span>
+              <input
+                class="slider-input"
+                id="litSlider"
+                type="range"
+                min="0"
+                max="100"
+                value="50"
+                oninput="onSliderChange()"
+              />
+              <span class="slider-value" id="litValue">50%</span>
+            </div>
+          </div>
+
+          <hr class="divider" />
+
+          <!-- 선택 색상 미리보기 + 값 복사 -->
+          <div>
+            <div class="section-title">선택된 색상</div>
+            <div class="preview-row">
+              <div class="color-preview" id="colorPreview"></div>
+              <div class="color-values">
+                <div class="value-row">
+                  <span class="value-label">HEX</span>
+                  <span class="value-text" id="hexOutput">#ffffff</span>
+                  <button
+                    class="btn-copy"
+                    id="btnCopyHex"
+                    onclick="copyValue('hex')"
+                  >
+                    복사
+                  </button>
+                </div>
+                <div class="value-row">
+                  <span class="value-label">RGB</span>
+                  <span class="value-text" id="rgbOutput">255, 255, 255</span>
+                  <button
+                    class="btn-copy"
+                    id="btnCopyRgb"
+                    onclick="copyValue('rgb')"
+                  >
+                    복사
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <hr class="divider" />
+
+          <!-- 기본 24색 -->
+          <div>
+            <div class="section-title">기본 24색</div>
+            <div class="swatch-grid" id="swatchGrid"></div>
+          </div>
+
+          <hr class="divider" />
+
+          <!-- 저장된 색상 -->
+          <div>
+            <div class="save-row">
+              <div class="section-title" style="margin-bottom: 0">
+                저장된 색상
+              </div>
+              <div style="display: flex; gap: 6px">
+                <button class="btn-save" onclick="saveColor()">
+                  현재 색상 저장
+                </button>
+                <button class="btn-clear" onclick="clearSaved()">
+                  전체 삭제
+                </button>
+              </div>
+            </div>
+            <div class="saved-grid" id="savedGrid" style="margin-top: 12px">
+              <span class="saved-empty">저장된 색상이 없습니다.</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 세로 구분선 -->
+        <div class="col-divider"></div>
+
+        <!-- 오른쪽 컬럼: 추천 색 조합 -->
+        <div class="col-right">
+          <div class="section-title">추천 색 조합</div>
+          <div class="palette-combo" id="comboPalette"></div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const paletteCanvas = document.getElementById("paletteCanvas");
+      const paletteCtx = paletteCanvas.getContext("2d");
+      const hueCanvas = document.getElementById("hueCanvas");
+      const hueCtx = hueCanvas.getContext("2d");
+      const colorPreview = document.getElementById("colorPreview");
+      const hexOutput = document.getElementById("hexOutput");
+      const rgbOutput = document.getElementById("rgbOutput");
+      const savedGrid = document.getElementById("savedGrid");
+      const satSlider = document.getElementById("satSlider");
+      const litSlider = document.getElementById("litSlider");
+      const satValue = document.getElementById("satValue");
+      const litValue = document.getElementById("litValue");
+
+      let currentHue = 0;
+      let currentSat = 100;
+      let currentLit = 50;
+      let currentColor = { r: 255, g: 255, b: 255 };
+      let savedColors = [];
+
+      const SWATCHES_24 = [
+        "#ff0000",
+        "#ff4500",
+        "#ff8c00",
+        "#ffd700",
+        "#adff2f",
+        "#00ff00",
+        "#00fa9a",
+        "#00ffff",
+        "#00bfff",
+        "#1e90ff",
+        "#0000ff",
+        "#8a2be2",
+        "#ff00ff",
+        "#ff1493",
+        "#ff69b4",
+        "#ffffff",
+        "#d3d3d3",
+        "#a9a9a9",
+        "#696969",
+        "#000000",
+        "#8b4513",
+        "#a0522d",
+        "#cd853f",
+        "#f5deb3",
+      ];
+
+      const COMBOS = [
+        {
+          name: "오션 브리즈",
+          colors: ["#0077b6", "#00b4d8", "#90e0ef", "#caf0f8", "#ffffff"],
+        },
+        {
+          name: "선셋 글로우",
+          colors: ["#ff6b6b", "#ffa36c", "#ffd166", "#ffe8a1", "#fff3d6"],
+        },
+        {
+          name: "포레스트 그린",
+          colors: ["#1b4332", "#2d6a4f", "#52b788", "#95d5b2", "#d8f3dc"],
+        },
+        {
+          name: "라벤더 드림",
+          colors: ["#3a0ca3", "#7209b7", "#b5179e", "#f72585", "#ffb3c6"],
+        },
+        {
+          name: "모노크롬",
+          colors: ["#111111", "#444444", "#777777", "#aaaaaa", "#eeeeee"],
+        },
+      ];
+
+      // 슬라이더 배경 업데이트
+      function updateSliderBg() {
+        satSlider.style.background = `linear-gradient(to right, hsl(${currentHue},0%,${currentLit}%), hsl(${currentHue},100%,${currentLit}%))`;
+        litSlider.style.background = `linear-gradient(to right, #000, hsl(${currentHue},${currentSat}%,50%), #fff)`;
+      }
+
+      function drawPalette(hue, sat, lit) {
+        const w = paletteCanvas.width;
+        const h = paletteCanvas.height;
+
+        // 흰색 → 순색(채도/명도 반영)
+        const colorGrad = paletteCtx.createLinearGradient(0, 0, w, 0);
+        colorGrad.addColorStop(0, `hsl(${hue},0%,${lit}%)`);
+        colorGrad.addColorStop(1, `hsl(${hue},${sat}%,${lit}%)`);
+        paletteCtx.fillStyle = colorGrad;
+        paletteCtx.fillRect(0, 0, w, h);
+
+        // 투명 → 검정
+        const darkGrad = paletteCtx.createLinearGradient(0, 0, 0, h);
+        darkGrad.addColorStop(0, "rgba(255,255,255,0.6)");
+        darkGrad.addColorStop(0.5, "rgba(0,0,0,0)");
+        darkGrad.addColorStop(1, "rgba(0,0,0,0.8)");
+        paletteCtx.fillStyle = darkGrad;
+        paletteCtx.fillRect(0, 0, w, h);
+      }
+
+      function drawHueBar() {
+        const grad = hueCtx.createLinearGradient(0, 0, hueCanvas.width, 0);
+        for (let i = 0; i <= 360; i += 60) {
+          grad.addColorStop(i / 360, `hsl(${i}, 100%, 50%)`);
+        }
+        hueCtx.fillStyle = grad;
+        hueCtx.fillRect(0, 0, hueCanvas.width, hueCanvas.height);
+      }
+
+      function toHex(r, g, b) {
+        return (
+          "#" + [r, g, b].map((v) => v.toString(16).padStart(2, "0")).join("")
+        );
+      }
+
+      function updateColor(r, g, b) {
+        currentColor = { r, g, b };
+        const hex = toHex(r, g, b);
+        colorPreview.style.backgroundColor = hex;
+        hexOutput.textContent = hex;
+        rgbOutput.textContent = `${r}, ${g}, ${b}`;
+      }
+
+      function onSliderChange() {
+        currentSat = Number(satSlider.value);
+        currentLit = Number(litSlider.value);
+        satValue.textContent = currentSat + "%";
+        litValue.textContent = currentLit + "%";
+        drawPalette(currentHue, currentSat, currentLit);
+        updateSliderBg();
+      }
+
+      function copyValue(type) {
+        const text =
+          type === "hex"
+            ? hexOutput.textContent
+            : `rgb(${rgbOutput.textContent})`;
+        const btnId = type === "hex" ? "btnCopyHex" : "btnCopyRgb";
+        navigator.clipboard.writeText(text).then(() => {
+          const btn = document.getElementById(btnId);
+          btn.textContent = "완료!";
+          btn.classList.add("copied");
+          setTimeout(() => {
+            btn.textContent = "복사";
+            btn.classList.remove("copied");
+          }, 1500);
+        });
+      }
+
+      function saveColor() {
+        const hex = toHex(currentColor.r, currentColor.g, currentColor.b);
+        if (savedColors.includes(hex)) return;
+        savedColors.push(hex);
+        renderSaved();
+      }
+
+      function clearSaved() {
+        savedColors = [];
+        renderSaved();
+      }
+
+      function renderSaved() {
+        savedGrid.innerHTML = "";
+        if (savedColors.length === 0) {
+          savedGrid.innerHTML =
+            '<span class="saved-empty">저장된 색상이 없습니다.</span>';
+          return;
+        }
+        savedColors.forEach((hex) => {
+          const div = document.createElement("div");
+          div.className = "saved-item";
+          div.style.backgroundColor = hex;
+          div.title = hex;
+          div.addEventListener("click", () => {
+            const r = parseInt(hex.slice(1, 3), 16);
+            const g = parseInt(hex.slice(3, 5), 16);
+            const b = parseInt(hex.slice(5, 7), 16);
+            updateColor(r, g, b);
+          });
+          savedGrid.appendChild(div);
+        });
+      }
+
+      function renderSwatches() {
+        const grid = document.getElementById("swatchGrid");
+        SWATCHES_24.forEach((hex) => {
+          const div = document.createElement("div");
+          div.className = "swatch-item";
+          div.style.backgroundColor = hex;
+          div.title = hex;
+          div.addEventListener("click", () => {
+            const r = parseInt(hex.slice(1, 3), 16);
+            const g = parseInt(hex.slice(3, 5), 16);
+            const b = parseInt(hex.slice(5, 7), 16);
+            updateColor(r, g, b);
+          });
+          grid.appendChild(div);
+        });
+      }
+
+      function renderCombos() {
+        const container = document.getElementById("comboPalette");
+        COMBOS.forEach((combo) => {
+          const item = document.createElement("div");
+          item.className = "combo-item";
+
+          const swatchWrap = document.createElement("div");
+          swatchWrap.className = "combo-swatches";
+
+          combo.colors.forEach((hex) => {
+            const s = document.createElement("div");
+            s.className = "combo-swatch";
+            s.style.backgroundColor = hex;
+            s.title = hex;
+            s.addEventListener("click", (e) => {
+              e.stopPropagation();
+              const r = parseInt(hex.slice(1, 3), 16);
+              const g = parseInt(hex.slice(3, 5), 16);
+              const b = parseInt(hex.slice(5, 7), 16);
+              updateColor(r, g, b);
+            });
+            swatchWrap.appendChild(s);
+          });
+
+          const name = document.createElement("span");
+          name.className = "combo-name";
+          name.textContent = combo.name;
+
+          item.appendChild(swatchWrap);
+          item.appendChild(name);
+          container.appendChild(item);
+        });
+      }
+
+      // 팔레트 이벤트
+      let isPaletteDown = false;
+      paletteCanvas.addEventListener("mousedown", (e) => {
+        isPaletteDown = true;
+        const px = paletteCtx.getImageData(e.offsetX, e.offsetY, 1, 1).data;
+        updateColor(px[0], px[1], px[2]);
+      });
+      paletteCanvas.addEventListener("mousemove", (e) => {
+        if (!isPaletteDown) return;
+        const px = paletteCtx.getImageData(e.offsetX, e.offsetY, 1, 1).data;
+        updateColor(px[0], px[1], px[2]);
+      });
+
+      // 색상 바 이벤트
+      let isHueDown = false;
+      hueCanvas.addEventListener("mousedown", (e) => {
+        isHueDown = true;
+        currentHue = Math.round((e.offsetX / hueCanvas.width) * 360);
+        drawPalette(currentHue, currentSat, currentLit);
+        updateSliderBg();
+      });
+      hueCanvas.addEventListener("mousemove", (e) => {
+        if (!isHueDown) return;
+        currentHue = Math.round((e.offsetX / hueCanvas.width) * 360);
+        drawPalette(currentHue, currentSat, currentLit);
+        updateSliderBg();
+      });
+
+      document.addEventListener("mouseup", () => {
+        isPaletteDown = false;
+        isHueDown = false;
+      });
+
+      // 초기화
+      drawPalette(currentHue, currentSat, currentLit);
+      drawHueBar();
+      updateSliderBg();
+      updateColor(255, 255, 255);
+      renderSwatches();
+      renderCombos();
+    </script>
+  </body>
+</html>
